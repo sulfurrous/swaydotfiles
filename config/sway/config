@@ -1,7 +1,7 @@
 set $mod Mod4
 set $term foot
 set $launcher wofi
-
+#bar cfg fully migrated to matugen template please contact your local tech support service to resolve any issues regarding bar
 #SCREENCAST FIX SEE ALSO ~/.config/xdg-desktop-portal/wlr.conf and smth
 exec --no-startup-id dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
 exec --no-startup-id autotiling-rs &
@@ -9,8 +9,9 @@ exec --no-startup-id ~/.config/sway/borders.sh &
 exec --no-startup-id dunst &
 exec --no-startup-id wob &
 exec --no-startup-id mkfifo /tmp/wobpipe && tail -f /tmp/wobpipe | wob
-exec wl-paste --type text --watch cliphist -max-items 1 store &
-exec wl-paste --type image --watch cliphist -max-items 1 store &
+exec --no-startup-id swww-daemon &
+exec --no-startup-id wl-paste --type text --watch cliphist -max-items 1 store &
+exec --no-startup-id wl-paste --type image --watch cliphist -max-items 1 store &
 
 
 #SOUND N BRIGHTNESS
@@ -21,8 +22,7 @@ bindsym XF86MonBrightnessUp exec brightnessctl set +5% && brightnessctl -m | gre
 bindsym XF86MonBrightnessDown exec brightnessctl set 5%- && brightnessctl -m | grep -oP '[0-9]+(?=%)' > /tmp/wobpipe
 
 
-#RELOAD N EXIT
-bindsym --to-code $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
+#RELOAD
 bindsym --to-code $mod+Shift+r reload
 
 
@@ -35,27 +35,31 @@ bindsym --to-code $mod+k focus up
 bindsym --to-code $mod+j focus down
 bindsym --to-code $mod+h focus left
 bindsym --to-code $mod+l focus right
+bindsym --to-code $mod+up focus up
+bindsym --to-code $mod+down focus down
+bindsym --to-code $mod+left focus left
+bindsym --to-code $mod+right focus right
 bindsym --to-code $mod+Shift+k move up 30 px 
 bindsym --to-code $mod+Shift+j move down 30 px 
 bindsym --to-code $mod+Shift+h move left 30 px 
 bindsym --to-code $mod+Shift+l move right 30 px 
-
+bindsym --to-code $mod+Shift+up move up 30 px 
+bindsym --to-code $mod+Shift+down move down 30 px 
+bindsym --to-code $mod+Shift+left move left 30 px 
+bindsym --to-code $mod+Shift+right move right 30 px 
 bindsym --to-code $mod+r mode "resize"
 
 mode "resize" {
 	
-	bindsym --to-code $mod+k resize grow height 30 px
-	bindsym --to-code $mod+j resize shrink height 30 px
-	bindsym --to-code $mod+h resize shrink width 30 px
-	bindsym --to-code $mod+l resize grow width 30 px
+  bindsym --to-code $mod+k resize grow height 30 px
+  bindsym --to-code $mod+j resize shrink height 30 px
+  bindsym --to-code $mod+h resize shrink width 30 px
+  bindsym --to-code $mod+l resize grow width 30 px
   bindsym --to-code $mod+down gaps inner all minus 2
   bindsym --to-code $mod+up gaps inner all plus 2
   bindsym --to-code $mod+right gaps outer all plus 2
   bindsym --to-code $mod+left gaps outer all minus 2
-  
-  
-
-	bindsym --to-code $mod+r mode "default"
+  bindsym --to-code $mod+r mode "default"
 
 }
 
@@ -68,7 +72,7 @@ bindsym $mod+Return exec $term
 bindsym --to-code $mod+t exec $term
 bindsym --to-code $mod+q kill
 bindsym --no-repeat --release Super_L exec pkill $launcher || $launcher --show drun
-
+bindsym --to-code $mod+shift+w exec $term --title "change wp" ~/.config/sway/wp_change.sh
 
 #MISC
 bindsym Print exec grim - | wl-copy
@@ -80,6 +84,7 @@ bindcode --to-code ctrl+shift+49 exec grim -g "$(slurp)" - | wl-copy
 for_window [title="Open Files"] floating enable, resize set 700 500, move position center
 for_window [title="Save File"] floating enable, resize set 700 500, move position center
 for_window [title="imv - *"] floating enable, move position center
+for_window [title="^change wp$"] floating enable, move position center, border none
 floating_maximum_size 1200 x 800 
 
 #WORKSPACE SHIT
@@ -118,19 +123,8 @@ bindsym $mod+Shift+9 move container to workspace number $ws9
 bindsym $mod+Shift+0 move container to workspace number $ws10
 
 
-bar {
-	position top
-	status_command ~/.config/sway/swaybar.sh
-	tray_output none
-	mode dock
-	font Terminus 11
-	status_edge_padding 0
-}
 
-output eDP-1 {
-                background ~/Pictures/wp/wallhaven-rqq3gm.png fill
-                resolution 1920x1080
-           }
+
 
 #kb layout
 input type:keyboard {
@@ -149,6 +143,8 @@ bindsym $mod+BackSpace+Shift input "1:1:AT_Translated_Set_2_keyboard" events tog
 
 
 #STYLING
+include colors_bar.conf
+include colors.conf
 font pango:Terminus 10
 default_floating_border normal
 default_border pixel
